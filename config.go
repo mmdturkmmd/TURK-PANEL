@@ -1,156 +1,72 @@
-// Package config provides configuration management utilities for the Spider Panel,
-// including version information, logging levels, database paths, and environment variable handling.
-package config
+package xray
 
 import (
-	_ "embed"
-	"fmt"
-	"io"
-	"os"
-	"path/filepath"
-	"runtime"
-	"strings"
+	"bytes"
+
+	"github.com/mhsanaei/3x-ui/v2/util/json_util"
 )
 
-//go:embed version
-var version string
-
-//go:embed name
-var name string
-
-// LogLevel represents the logging level for the application.
-type LogLevel string
-
-// Logging level constants
-const (
-	Debug   LogLevel = "debug"
-	Info    LogLevel = "info"
-	Notice  LogLevel = "notice"
-	Warning LogLevel = "warning"
-	Error   LogLevel = "error"
-)
-
-// GetVersion returns the version string of the 3x-ui application.
-func GetVersion() string {
-	return strings.TrimSpace(version)
+// Config represents the complete Xray configuration structure.
+// It contains all sections of an Xray config file including inbounds, outbounds, routing, etc.
+type Config struct {
+	LogConfig        json_util.RawMessage `json:"log"`
+	RouterConfig     json_util.RawMessage `json:"routing"`
+	DNSConfig        json_util.RawMessage `json:"dns"`
+	InboundConfigs   []InboundConfig      `json:"inbounds"`
+	OutboundConfigs  json_util.RawMessage `json:"outbounds"`
+	Transport        json_util.RawMessage `json:"transport"`
+	Policy           json_util.RawMessage `json:"policy"`
+	API              json_util.RawMessage `json:"api"`
+	Stats            json_util.RawMessage `json:"stats"`
+	Reverse          json_util.RawMessage `json:"reverse"`
+	FakeDNS          json_util.RawMessage `json:"fakedns"`
+	Observatory      json_util.RawMessage `json:"observatory"`
+	BurstObservatory json_util.RawMessage `json:"burstObservatory"`
+	Metrics          json_util.RawMessage `json:"metrics"`
 }
 
-// GetName returns the name of the 3x-ui application.
-func GetName() string {
-	return strings.TrimSpace(name)
-}
-
-// GetLogLevel returns the current logging level based on environment variables or defaults to Info.
-func GetLogLevel() LogLevel {
-	if IsDebug() {
-		return Debug
+// Equals compares two Config instances for deep equality.
+func (c *Config) Equals(other *Config) bool {
+	if len(c.InboundConfigs) != len(other.InboundConfigs) {
+		return false
 	}
-	logLevel := os.Getenv("XUI_LOG_LEVEL")
-	if logLevel == "" {
-		return Info
-	}
-	return LogLevel(logLevel)
-}
-
-// IsDebug returns true if debug mode is enabled via the XUI_DEBUG environment variable.
-func IsDebug() bool {
-	return os.Getenv("XUI_DEBUG") == "true"
-}
-
-// GetBinFolderPath returns the path to the binary folder, defaulting to "bin" if not set via XUI_BIN_FOLDER.
-func GetBinFolderPath() string {
-	binFolderPath := os.Getenv("XUI_BIN_FOLDER")
-	if binFolderPath == "" {
-		binFolderPath = "bin"
-	}
-	return binFolderPath
-}
-
-func getBaseDir() string {
-	exePath, err := os.Executable()
-	if err != nil {
-		return "."
-	}
-	exeDir := filepath.Dir(exePath)
-	exeDirLower := strings.ToLower(filepath.ToSlash(exeDir))
-	if strings.Contains(exeDirLower, "/appdata/local/temp/") || strings.Contains(exeDirLower, "/go-build") {
-		wd, err := os.Getwd()
-		if err != nil {
-			return "."
+	for i, inbound := range c.InboundConfigs {
+		if !inbound.Equals(&other.InboundConfigs[i]) {
+			return false
 		}
-		return wd
 	}
-	return exeDir
-}
-
-// GetDBFolderPath returns the path to the database folder based on environment variables or platform defaults.
-func GetDBFolderPath() string {
-	dbFolderPath := os.Getenv("XUI_DB_FOLDER")
-	if dbFolderPath != "" {
-		return dbFolderPath
+	if !bytes.Equal(c.LogConfig, other.LogConfig) {
+		return false
 	}
-	if runtime.GOOS == "windows" {
-		return getBaseDir()
+	if !bytes.Equal(c.RouterConfig, other.RouterConfig) {
+		return false
 	}
-	return "/etc/x-ui"
-}
-
-// GetDBPath returns the full path to the database file.
-func GetDBPath() string {
-	return fmt.Sprintf("%s/%s.db", GetDBFolderPath(), GetName())
-}
-
-// GetLogFolder returns the path to the log folder based on environment variables or platform defaults.
-func GetLogFolder() string {
-	logFolderPath := os.Getenv("XUI_LOG_FOLDER")
-	if logFolderPath != "" {
-		return logFolderPath
+	if !bytes.Equal(c.DNSConfig, other.DNSConfig) {
+		return false
 	}
-	if runtime.GOOS == "windows" {
-		return filepath.Join(".", "log")
+	if !bytes.Equal(c.OutboundConfigs, other.OutboundConfigs) {
+		return false
 	}
-	return "/var/log/x-ui"
-}
-
-func copyFile(src, dst string) error {
-	in, err := os.Open(src)
-	if err != nil {
-		return err
+	if !bytes.Equal(c.Transport, other.Transport) {
+		return false
 	}
-	defer in.Close()
-
-	out, err := os.Create(dst)
-	if err != nil {
-		return err
+	if !bytes.Equal(c.Policy, other.Policy) {
+		return false
 	}
-	defer out.Close()
-
-	_, err = io.Copy(out, in)
-	if err != nil {
-		return err
+	if !bytes.Equal(c.API, other.API) {
+		return false
 	}
-
-	return out.Sync()
-}
-
-func init() {
-	if runtime.GOOS != "windows" {
-		return
+	if !bytes.Equal(c.Stats, other.Stats) {
+		return false
 	}
-	if os.Getenv("XUI_DB_FOLDER") != "" {
-		return
+	if !bytes.Equal(c.Reverse, other.Reverse) {
+		return false
 	}
-	oldDBFolder := "/etc/x-ui"
-	oldDBPath := fmt.Sprintf("%s/%s.db", oldDBFolder, GetName())
-	newDBFolder := GetDBFolderPath()
-	newDBPath := fmt.Sprintf("%s/%s.db", newDBFolder, GetName())
-	_, err := os.Stat(newDBPath)
-	if err == nil {
-		return // new exists
+	if !bytes.Equal(c.FakeDNS, other.FakeDNS) {
+		return false
 	}
-	_, err = os.Stat(oldDBPath)
-	if os.IsNotExist(err) {
-		return // old does not exist
+	if !bytes.Equal(c.Metrics, other.Metrics) {
+		return false
 	}
-	_ = copyFile(oldDBPath, newDBPath) // ignore error
+	return true
 }
