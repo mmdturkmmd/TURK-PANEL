@@ -1,292 +1,171 @@
-{{define "settings/panel/general"}}
+{{define "settings/panel/subscription/general"}}
 <a-collapse default-active-key="1">
     <a-collapse-panel key="1" header='{{ i18n "pages.xray.generalConfigs"}}'>
         <a-setting-list-item paddings="small">
-            <template #title>
-                {{ i18n "pages.settings.remarkModel"}}
-            </template>
-            <template #description>
-                {{ i18n "pages.settings.sampleRemark"}}: <i>#[[ remarkSample ]]</i>
-            </template>
+            <template #title>{{ i18n "pages.settings.subEnable"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subEnableDesc"}}</template>
             <template #control>
-                <a-input-group :style="{ width: '100%' }">
-                    <a-select :style="{ paddingRight: '.5rem', minWidth: '80%', width: 'auto' }" mode="multiple"
-                        v-model="remarkModel" :dropdown-class-name="themeSwitcher.currentTheme">
-                        <a-select-option v-for="(value, key) in remarkModels" :value="key">[[ value ]]</a-select-option>
-                    </a-select>
-                    <a-select :style="{ width: '20%' }" v-model="remarkSeparator"
-                        :dropdown-class-name="themeSwitcher.currentTheme">
-                        <a-select-option v-for="key in remarkSeparators" :value="key">[[ key ]]</a-select-option>
-                    </a-select>
-                </a-input-group>
+                <a-switch v-model="allSetting.subEnable"></a-switch>
             </template>
         </a-setting-list-item>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.panelListeningIP"}}</template>
-            <template #description>{{ i18n "pages.settings.panelListeningIPDesc"}}</template>
+            <template #title>JSON Subscription</template>
+            <template #description>{{ i18n
+                "pages.settings.subJsonEnable"}}</template>
             <template #control>
-                <a-input type="text" v-model="allSetting.webListen"></a-input>
+                <a-switch v-model="allSetting.subJsonEnable"></a-switch>
             </template>
         </a-setting-list-item>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.panelListeningDomain"}}</template>
-            <template #description>{{ i18n "pages.settings.panelListeningDomainDesc"}}</template>
+            <template #title>Clash / Mihomo Subscription</template>
+            <template #description>Enable direct Clash and Mihomo YAML
+                subscriptions.</template>
             <template #control>
-                <a-input type="text" v-model="allSetting.webDomain"></a-input>
+                <a-switch v-model="allSetting.subClashEnable"></a-switch>
             </template>
         </a-setting-list-item>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.panelPort"}}</template>
-            <template #description>{{ i18n "pages.settings.panelPortDesc"}}</template>
+            <template #title>{{ i18n "pages.settings.subListen"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subListenDesc"}}</template>
             <template #control>
-                <a-input-number :min="1" :min="65535" v-model="allSetting.webPort" :style="{ width: '100%' }"></a-input>
+                <a-input type="text" v-model="allSetting.subListen"></a-input>
             </template>
         </a-setting-list-item>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.panelUrlPath"}}</template>
-            <template #description>{{ i18n "pages.settings.panelUrlPathDesc"}}</template>
+            <template #title>{{ i18n "pages.settings.subDomain"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subDomainDesc"}}</template>
             <template #control>
-                <a-input type="text" v-model="allSetting.webBasePath"></a-input>
+                <a-input type="text" v-model="allSetting.subDomain"></a-input>
             </template>
         </a-setting-list-item>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.sessionMaxAge" }}</template>
-            <template #description>{{ i18n "pages.settings.sessionMaxAgeDesc" }}</template>
+            <template #title>{{ i18n "pages.settings.subPort"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subPortDesc"}}</template>
             <template #control>
-                <a-input-number :min="60" v-model="allSetting.sessionMaxAge" :style="{ width: '100%' }"></a-input>
+                <a-input-number v-model="allSetting.subPort" :min="1" :min="65535"
+                    :style="{ width: '100%' }"></a-input-number>
             </template>
         </a-setting-list-item>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.pageSize" }}</template>
-            <template #description>{{ i18n "pages.settings.pageSizeDesc" }}</template>
+            <template #title>{{ i18n "pages.settings.subPath"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subPathDesc"}}</template>
             <template #control>
-                <a-input-number :min="0" step="5" v-model="allSetting.pageSize" :style="{ width: '100%' }"></a-input>
+                <a-input type="text" v-model="allSetting.subPath"
+                    @input="allSetting.subPath = ((typeof $event === 'string' ? $event : ($event && $event.target ? $event.target.value : '')) || '').replace(/[:*]/g, '')"
+                    @blur="allSetting.subPath = (p => { p = p || '/'; if (!p.startsWith('/')) p='/' + p; if (!p.endsWith('/')) p += '/'; return p.replace(/\/+/g,'/'); })(allSetting.subPath)"
+                    placeholder="/sub/"></a-input>
             </template>
         </a-setting-list-item>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.language"}}</template>
+            <template #title>{{ i18n "pages.settings.subURI"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subURIDesc"}}</template>
             <template #control>
-                <a-select ref="selectLang" v-model="lang" @change="LanguageManager.setLanguage(lang)"
-                    :dropdown-class-name="themeSwitcher.currentTheme" :style="{ width: '100%' }">
-                    <a-select-option :value="l.value" :label="l.value" v-for="l in LanguageManager.supportedLanguages">
-                        <span role="img" :aria-label="l.name" v-text="l.icon"></span> &nbsp;&nbsp; <span
-                            v-text="l.name"></span>
-                    </a-select-option>
-                </a-select>
+                <a-input type="text" placeholder="(http|https)://domain[:port]/path/"
+                    v-model="allSetting.subURI"></a-input>
             </template>
         </a-setting-list-item>
     </a-collapse-panel>
-    <a-collapse-panel key="2" header='{{ i18n "pages.settings.notifications" }}'>
+    <a-collapse-panel key="2" header='{{ i18n "pages.settings.information" }}'>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.expireTimeDiff" }}</template>
-            <template #description>{{ i18n "pages.settings.expireTimeDiffDesc" }}</template>
+            <template #title>{{ i18n "pages.settings.subEncrypt"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subEncryptDesc"}}</template>
             <template #control>
-                <a-input-number :min="0" v-model="allSetting.expireDiff" :style="{ width: '100%' }"></a-input>
+                <a-switch v-model="allSetting.subEncrypt"></a-switch>
             </template>
         </a-setting-list-item>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.trafficDiff" }}</template>
-            <template #description>{{ i18n "pages.settings.trafficDiffDesc" }}</template>
+            <template #title>{{ i18n "pages.settings.subShowInfo"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subShowInfoDesc"}}</template>
             <template #control>
-                <a-input-number :min="0" v-model="allSetting.trafficDiff" :style="{ width: '100%' }"></a-input>
+                <a-switch v-model="allSetting.subShowInfo"></a-switch>
+            </template>
+        </a-setting-list-item>
+        <a-divider>{{ i18n "pages.xray.basicTemplate"}}</a-divider>
+        <a-setting-list-item paddings="small">
+            <template #title>{{ i18n "pages.settings.subTitle"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subTitleDesc"}}</template>
+            <template #control>
+                <a-input type="text" v-model="allSetting.subTitle"></a-input>
+            </template>
+        </a-setting-list-item>
+        <a-setting-list-item paddings="small">
+            <template #title>{{ i18n "pages.settings.subSupportUrl"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subSupportUrlDesc"}}</template>
+            <template #control>
+                <a-input type="text" v-model="allSetting.subSupportUrl" placeholder="https://example.com"></a-input>
+            </template>
+        </a-setting-list-item>
+        <a-setting-list-item paddings="small">
+            <template #title>{{ i18n "pages.settings.subProfileUrl"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subProfileUrlDesc"}}</template>
+            <template #control>
+                <a-input type="text" v-model="allSetting.subProfileUrl" placeholder="https://example.com"></a-input>
+            </template>
+        </a-setting-list-item>
+        <a-setting-list-item paddings="small">
+            <template #title>{{ i18n "pages.settings.subAnnounce"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subAnnounceDesc"}}</template>
+            <template #control>
+                <a-textarea v-model="allSetting.subAnnounce"></a-textarea>
+            </template>
+        </a-setting-list-item>
+        <a-divider>{{ i18n "pages.xray.advancedTemplate"}} (Happ)</a-divider>
+        <a-setting-list-item paddings="small">
+            <template #title>{{ i18n
+                "pages.settings.subEnableRouting"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subEnableRoutingDesc"}}</template>
+            <template #control>
+                <a-switch v-model="allSetting.subEnableRouting"></a-switch>
+            </template>
+        </a-setting-list-item>
+        <a-setting-list-item paddings="small">
+            <template #title>{{ i18n
+                "pages.settings.subRoutingRules"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subRoutingRulesDesc"}}</template>
+            <template #control>
+                <a-textarea v-model="allSetting.subRoutingRules" placeholder="happ://routing/add/..."></a-textarea>
             </template>
         </a-setting-list-item>
     </a-collapse-panel>
     <a-collapse-panel key="3" header='{{ i18n "pages.settings.certs" }}'>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.publicKeyPath"}}</template>
-            <template #description>{{ i18n "pages.settings.publicKeyPathDesc"}}</template>
+            <template #title>{{ i18n "pages.settings.subCertPath"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subCertPathDesc"}}</template>
             <template #control>
-                <a-input type="text" v-model="allSetting.webCertFile"></a-input>
+                <a-input type="text" v-model="allSetting.subCertFile"></a-input>
             </template>
         </a-setting-list-item>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.privateKeyPath"}}</template>
-            <template #description>{{ i18n "pages.settings.privateKeyPathDesc"}}</template>
+            <template #title>{{ i18n "pages.settings.subKeyPath"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subKeyPathDesc"}}</template>
             <template #control>
-                <a-input type="text" v-model="allSetting.webKeyFile"></a-input>
-            </template>
-        </a-setting-list-item>
-    </a-collapse-panel>
-    <a-collapse-panel key="4" header='{{ i18n "pages.settings.externalTraffic" }}'>
-        <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.externalTrafficInformEnable"}}</template>
-            <template #description>{{ i18n "pages.settings.externalTrafficInformEnableDesc"}}</template>
-            <template #control>
-                <a-switch v-model="allSetting.externalTrafficInformEnable"></a-switch>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.externalTrafficInformURI"}}</template>
-            <template #description>{{ i18n "pages.settings.externalTrafficInformURIDesc"}}</template>
-            <template #control>
-                <a-input type="text" placeholder="(http|https)://domain[:port]/path/"
-                    v-model="allSetting.externalTrafficInformURI"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.restartXrayOnClientDisable"}}</template>
-            <template #description>{{ i18n "pages.settings.restartXrayOnClientDisableDesc"}}</template>
-            <template #control>
-                <a-switch v-model="allSetting.restartXrayOnClientDisable"></a-switch>
+                <a-input type="text" v-model="allSetting.subKeyFile"></a-input>
             </template>
         </a-setting-list-item>
     </a-collapse-panel>
-    <a-collapse-panel key="5" header='{{ i18n "pages.settings.dateAndTime" }}'>
+    <a-collapse-panel key="4" header='{{ i18n "pages.settings.intervals"}}'>
         <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.timeZone"}}</template>
-            <template #description>{{ i18n "pages.settings.timeZoneDesc"}}</template>
+            <template #title>{{ i18n "pages.settings.subUpdates"}}</template>
+            <template #description>{{ i18n
+                "pages.settings.subUpdatesDesc"}}</template>
             <template #control>
-                <a-input type="text" v-model="allSetting.timeLocation"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>{{ i18n "pages.settings.datepicker"}}</template>
-            <template #description>{{ i18n "pages.settings.datepickerDescription"}}</template>
-            <template #control>
-                <a-select :style="{ width: '100%' }" :dropdown-class-name="themeSwitcher.currentTheme"
-                    v-model="datepicker">
-                    <a-select-option v-for="item in datepickerList" :value="item.value">
-                        <span v-text="item.name"></span>
-                    </a-select-option>
-                </a-select>
-            </template>
-        </a-setting-list-item>
-    </a-collapse-panel>
-    <a-collapse-panel key="6" header='LDAP'>
-        <a-setting-list-item paddings="small">
-            <template #title>Enable LDAP sync</template>
-            <template #control>
-                <a-switch v-model="allSetting.ldapEnable"></a-switch>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>LDAP Host</template>
-            <template #control>
-                <a-input type="text" v-model="allSetting.ldapHost"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>LDAP Port</template>
-            <template #control>
-                <a-input-number :min="1" :max="65535" v-model="allSetting.ldapPort"
-                    :style="{ width: '100%' }"></a-input-number>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Use TLS (LDAPS)</template>
-            <template #control>
-                <a-switch v-model="allSetting.ldapUseTLS"></a-switch>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Bind DN</template>
-            <template #control>
-                <a-input type="text" v-model="allSetting.ldapBindDN"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Password</template>
-            <template #control>
-                <a-input type="password" v-model="allSetting.ldapPassword"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Base DN</template>
-            <template #control>
-                <a-input type="text" v-model="allSetting.ldapBaseDN"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>User filter</template>
-            <template #control>
-                <a-input type="text" v-model="allSetting.ldapUserFilter"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>User attribute (username/email)</template>
-            <template #control>
-                <a-input type="text" v-model="allSetting.ldapUserAttr"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>VLESS flag attribute</template>
-            <template #control>
-                <a-input type="text" v-model="allSetting.ldapVlessField"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Generic flag attribute (optional)</template>
-            <template #description>If set, overrides VLESS flag; e.g. shadowInactive</template>
-            <template #control>
-                <a-input type="text" v-model="allSetting.ldapFlagField"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Truthy values</template>
-            <template #description>Comma-separated; default: true,1,yes,on</template>
-            <template #control>
-                <a-input type="text" v-model="allSetting.ldapTruthyValues"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Invert flag</template>
-            <template #description>Enable when attribute means disabled (e.g., shadowInactive)</template>
-            <template #control>
-                <a-switch v-model="allSetting.ldapInvertFlag"></a-switch>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Sync schedule</template>
-            <template #description>cron-like string, e.g. @every 1m</template>
-            <template #control>
-                <a-input type="text" v-model="allSetting.ldapSyncCron"></a-input>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Inbound tags</template>
-            <template #description>Select inbounds to manage (auto create/delete)</template>
-            <template #control>
-                <a-select mode="multiple" :dropdown-class-name="themeSwitcher.currentTheme" :style="{ width: '100%' }"
-                    v-model="ldapInboundTagList">
-                    <a-select-option v-for="opt in inboundOptions" :key="opt.value" :value="opt.value">[[ opt.label
-                        ]]</a-select-option>
-                </a-select>
-                <div v-if="inboundOptions.length==0" style="margin-top:6px;color:#999">No inbounds found. Please create
-                    one in Inbounds.</div>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Auto create clients</template>
-            <template #control>
-                <a-switch v-model="allSetting.ldapAutoCreate"></a-switch>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Auto delete clients</template>
-            <template #control>
-                <a-switch v-model="allSetting.ldapAutoDelete"></a-switch>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Default total (GB)</template>
-            <template #control>
-                <a-input-number :min="0" v-model="allSetting.ldapDefaultTotalGB"
-                    :style="{ width: '100%' }"></a-input-number>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Default expiry (days)</template>
-            <template #control>
-                <a-input-number :min="0" v-model="allSetting.ldapDefaultExpiryDays"
-                    :style="{ width: '100%' }"></a-input-number>
-            </template>
-        </a-setting-list-item>
-        <a-setting-list-item paddings="small">
-            <template #title>Default Limit IP</template>
-            <template #control>
-                <a-input-number :min="0" v-model="allSetting.ldapDefaultLimitIP"
-                    :style="{ width: '100%' }"></a-input-number>
+                <a-input-number :min="1" v-model="allSetting.subUpdates" :style="{ width: '100%' }"></a-input-number>
             </template>
         </a-setting-list-item>
     </a-collapse-panel>
