@@ -15,33 +15,33 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/mhsanaei/3x-ui/v2.svg)](https://pkg.go.dev/github.com/mhsanaei/3x-ui/v2)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mhsanaei/3x-ui/v2)](https://goreportcard.com/report/github.com/mhsanaei/3x-ui/v2)
 
-**3X-UI** — advanced, open-source web-based control panel designed for managing Xray-core server. It offers a user-friendly interface for configuring and monitoring various VPN and proxy protocols.
+**3X-UI** — یک پنل کنترل پیشرفته مبتنی بر وب با کد باز که برای مدیریت سرور Xray-core طراحی شده است. این پنل یک رابط کاربری آسان برای پیکربندی و نظارت بر پروتکل‌های مختلف VPN و پراکسی ارائه می‌دهد.
 
 > [!IMPORTANT]
-> This project is only for personal usage, please do not use it for illegal purposes, and please do not use it in a production environment.
+> این پروژه فقط برای استفاده شخصی و ارتباطات است، لطفاً از آن برای اهداف غیرقانونی استفاده نکنید، لطفاً از آن در محیط تولید استفاده نکنید.
 
-As an enhanced fork of the original X-UI project, 3X-UI provides improved stability, broader protocol support, and additional features.
+به عنوان یک نسخه بهبود یافته از پروژه اصلی X-UI، 3X-UI پایداری بهتر، پشتیبانی گسترده‌تر از پروتکل‌ها و ویژگی‌های اضافی را ارائه می‌دهد.
 
-## Quick Start
+## شروع سریع
 
-```bash
+```
 bash <(curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh)
 ```
 
-For full documentation, please visit the [project Wiki](https://github.com/MHSanaei/3x-ui/wiki).
+برای مستندات کامل، لطفاً به [ویکی پروژه](https://github.com/MHSanaei/3x-ui/wiki) مراجعه کنید.
 
-## A Special Thanks to
+## تشکر ویژه از
 
 - [alireza0](https://github.com/alireza0/)
 
-## Acknowledgment
+## قدردانی
 
-- [Iran v2ray rules](https://github.com/chocolate4u/Iran-v2ray-rules) (License: **GPL-3.0**): _Enhanced v2ray/xray and v2ray/xray-clients routing rules with built-in Iranian domains and a focus on security and adblocking._
-- [Russia v2ray rules](https://github.com/runetfreedom/russia-v2ray-rules-dat) (License: **GPL-3.0**): _This repository contains automatically updated V2Ray routing rules based on data on blocked domains and addresses in Russia._
+- [Iran v2ray rules](https://github.com/chocolate4u/Iran-v2ray-rules) (مجوز: **GPL-3.0**): _قوانین مسیریابی بهبود یافته v2ray/xray و v2ray/xray-clients با دامنه‌های ایرانی داخلی و تمرکز بر امنیت و مسدود کردن تبلیغات._
+- [Russia v2ray rules](https://github.com/runetfreedom/russia-v2ray-rules-dat) (مجوز: **GPL-3.0**): _این مخزن شامل قوانین مسیریابی V2Ray به‌روزرسانی شده خودکار بر اساس داده‌های دامنه‌ها و آدرس‌های مسدود شده در روسیه است._
 
-## Support project
+## پشتیبانی از پروژه
 
-**If this project is helpful to you, you may wish to give it a**:star2:
+**اگر این پروژه برای شما مفید است، می‌توانید به آن یک**:star2: بدهید
 
 <a href="https://www.buymeacoffee.com/MHSanaei" target="_blank">
 <img src="./media/default-yellow.png" alt="Buy Me A Coffee" style="height: 70px !important;width: 277px !important;" >
@@ -52,6 +52,6 @@ For full documentation, please visit the [project Wiki](https://github.com/MHSan
    <img src="./media/donation-button-black.svg" alt="Crypto donation button by NOWPayments">
 </a>
 
-## Stargazers over Time
+## ستاره‌ها در طول زمان
 
 [![Stargazers over time](https://starchart.cc/MHSanaei/3x-ui.svg?variant=adaptive)](https://starchart.cc/MHSanaei/3x-ui)
